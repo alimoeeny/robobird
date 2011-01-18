@@ -9,7 +9,8 @@ def sanitize(s):
 
 if __name__ == "__main__":
 	splitter = "\t";
-	f = open("pubT.txt", 'w');
+	TwiSpli = "T#S%\r\n";
+	f = open("pubT.txt", 'a');
 	#for i in range(0,10):
 	while (True):
 		time.sleep(30);
@@ -32,7 +33,7 @@ if __name__ == "__main__":
 				#s += t. + splitter;						
 				s += sanitize(t.text) + splitter;
 				f.write(s.encode('utf-8'));
-				f.write("\n");	
+				f.write(TwiSpli);	
 		finally:
 			print time.time()
 
