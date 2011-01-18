@@ -20,15 +20,15 @@ if __name__ == "__main__":
 			for t in pub_tw:
 				time.sleep(0.3);
 				try:
-					tlang = detect_language_v2(tspl[6], api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
+					tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
 				except:
-					tlang = "";				
+					tlang = "x";				
 				s = '';
 				s += t.id.__str__() + splitter;
 				s += t.user.id.__str__() + splitter;
 				s += t.author.id.__str__() + splitter;
 				s += t.created_at.__str__() + splitter;
-				s += tlang + splitter;
+				s += tlang[0] + splitter;
 				if t.source_url==None :
 					s += splitter;
 				else:				
