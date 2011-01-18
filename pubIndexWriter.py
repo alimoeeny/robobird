@@ -1,5 +1,6 @@
 import tweepy
 import time
+from googlelangdetect import detect_language_v2
 
 def sanitize(s):
 	r = s.replace("\t","");
@@ -17,11 +18,17 @@ if __name__ == "__main__":
 		try:
 			pub_tw = tweepy.api.public_timeline();
 			for t in pub_tw:
+				time.sleep(0.3);
+				try:
+					tlang = detect_language_v2(tspl[6], api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
+				except:
+					tlang = "";				
 				s = '';
 				s += t.id.__str__() + splitter;
 				s += t.user.id.__str__() + splitter;
 				s += t.author.id.__str__() + splitter;
 				s += t.created_at.__str__() + splitter;
+				s += tlang + splitter;
 				if t.source_url==None :
 					s += splitter;
 				else:				
