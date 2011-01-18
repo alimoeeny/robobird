@@ -6,6 +6,10 @@ def sanitize(s):
 	r = s.replace("\t","");
 	r = s.replace("\n","");
 	r = s.replace("\r","");
+	r = s.replace("\a","");
+	r = s.replace("\b","");
+	r = s.replace("\f","");
+	r = s.replace("\v","");
 	return r
 
 if __name__ == "__main__":
