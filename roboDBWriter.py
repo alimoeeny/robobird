@@ -3,7 +3,10 @@
 import tweepy
 import time
 from googlelangdetect import detect_language_v2
+import guess_language
 
+# exc_info is used for getting exceptions info
+from sys import exc_info
 
 import MySQLdb
 from nltk import pos_tag, word_tokenize
@@ -50,7 +53,7 @@ def sanitize(w):
 def CheckinWord(w):
 	#print w
 	if ((w<>"") & (w<>" ")):
-		db = MySQLdb.Connect(servername, username, userpass, databasename)
+		db = MySQLdb.Connect(servername, username, userpass, databasename, use_unicode=True)
 		cur = db.cursor()
 		cur.callproc('checkinword', [w.lower()]);
 		db.close();
@@ -58,7 +61,7 @@ def CheckinWord(w):
 def SetinStatus(w, hnscore, inTitle, sURL):
 	#print w, hnscore, inTitle, sURL
 	if ((w<>"") & (w<>" ")):
-		db = MySQLdb.Connect(servername, username, userpass, databasename)
+		db = MySQLdb.Connect(servername, username, userpass, databasename, use_unicode=True)
 		cur = db.cursor()
 		cur.callproc('setinstate', [w.lower(), hnscore, inTitle, sURL]);
 		db.close();
@@ -70,16 +73,20 @@ if __name__ == "__main__":
 	f = open("pubT.txt", 'a');
 	#for i in range(0,10):
 	while (True):
-		time.sleep(30);
 		try:
 			pub_tw = tweepy.api.public_timeline();
 			for t in pub_tw:
 				time.sleep(0.3);
 				try:
-					tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
+					try:
+						tlang = guess_language.guessLanguage(unicode(sanitize(t.text)))
+						if (tlang == "UNKNOWN"):
+							tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
+					except: 
+						tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
 				except:
 					tlang = "x";				
-				if tlang not in ('ja', 'ar', 'ru'):			
+				if tlang not in ('ja', 'ca', 'ar', 'ru', 'pt', 'af', 'bg', 'fr'):			
 					s = '';
 					s += t.id.__str__() + splitter;
 					s += t.user.id.__str__() + splitter;
@@ -98,7 +105,19 @@ if __name__ == "__main__":
 					s += sanitize(t.text) + splitter;
 					f.write(s.encode('utf-8'));
 					f.write(TwiSpli);	
+		
+					for w in word_tokenize(t.text):
+						try:
+							sw = sanitize(w)					
+							CheckinWord(sw)
+							SetinStatus(sw, 0, 0, t.id.__str__())
+						except:
+							print "Failed", exc_info()[0], tlang, sw
+
+
+
 		finally:
 			print time.time()
+		time.sleep(30);
 
 	f.close();
