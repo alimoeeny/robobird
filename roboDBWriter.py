@@ -16,6 +16,11 @@ username = 'ali'
 userpass = 'testpassword' 
 databasename = 'robobird'
 
+###################
+#import psycopg2
+import bpgsql
+pguser="postgres"
+pgpass="testpassword"
 
 
 def sanitize(w):
@@ -53,18 +58,46 @@ def sanitize(w):
 def CheckinWord(w):
 	#print w
 	if ((w<>"") & (w<>" ")):
-		db = MySQLdb.Connect(servername, username, userpass, databasename, use_unicode=True)
-		cur = db.cursor()
-		cur.callproc('checkinword', [w.lower()]);
-		db.close();
+#		try:
+#			db = MySQLdb.Connect(servername, username, userpass, databasename, use_unicode=True)
+#			cur = db.cursor()
+#			cur.callproc('checkinword', [w.lower()]);
+#			db.close();
+#		except:
+#			print "mysql checkinword failed!", exc_info()[0]
 
-def SetinStatus(w, hnscore, inTitle, sURL):
-	#print w, hnscore, inTitle, sURL
+		try:
+			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+			curg = dbg.cursor()
+			# THIS IS TO BE FIXED POSSIBLE SQL INJECTION PROBLEM HERE
+			curg.execute("SELECT checkinword(E'%s')" % w.lower());
+			dbg.close();
+		except:
+			print "PGsql checkinword failed!", exc_info()[0]
+
+
+def SetinStatus(w, hnscore, inTitle, tid):
+#	print w, hnscore, inTitle, tid
 	if ((w<>"") & (w<>" ")):
-		db = MySQLdb.Connect(servername, username, userpass, databasename, use_unicode=True)
-		cur = db.cursor()
-		cur.callproc('setinstate', [w.lower(), hnscore, inTitle, sURL]);
-		db.close();
+#		try:
+#			db = MySQLdb.Connect(servername, username, userpass, databasename, use_unicode=True)
+#			cur = db.cursor()
+#			cur.callproc('setinstate', [w.lower(), hnscore, inTitle, tid.__str__()]);
+#			db.close();
+#		except: 
+#			print "mysql setinstate failed", exc_info()[0]
+			
+		try:
+			#print "SELECT setinstate(E'%(w)s', %(ts)d, %(tid)s )" % {"w":w.lower(), "ts":0, "tid":tid}
+
+			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+			curg = dbg.cursor()
+			curg.execute("SELECT setinstate(E'%(w)s', %(ts)d, %(tid)s )" % {"w":w.lower(), "ts":0, "tid":tid}
+);
+			dbg.close();
+		except: 
+			print "PGsql setinstate failed", exc_info()[0]
+			
 
 
 if __name__ == "__main__":
@@ -75,18 +108,20 @@ if __name__ == "__main__":
 	while (True):
 		try:
 			pub_tw = tweepy.api.public_timeline();
+			print "Got %d tweets" % pub_tw.__len__()
 			for t in pub_tw:
-				time.sleep(0.3);
-				try:
-					try:
-						tlang = guess_language.guessLanguage(unicode(sanitize(t.text)))
-						if (tlang == "UNKNOWN"):
-							tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
-					except: 
-						tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
-				except:
-					tlang = "x";				
-				if tlang not in ('ja', 'ca', 'ar', 'ru', 'pt', 'af', 'bg', 'fr'):			
+				#time.sleep(0.3);
+				#try:
+				#	try:
+				#		tlang = guess_language.guessLanguage(unicode(sanitize(t.text)))
+				#		if (tlang == "UNKNOWN"): #| (tlang == "en")):
+				#			tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
+				#	except: 
+				#		tlang = detect_language_v2(sanitize(t.text), api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
+				#except:
+				#	tlang = "x";
+				tlang = " "				
+				if tlang not in ('ja', 'ca', 'ar', 'ru', 'pt', 'af', 'bg', 'fr', 'de', 'zh', 'tr', 'nb','es','sk', 'ko', 'it', 'id','la','lv','mk','nl','et','cs','so','da','uk', 'sv','th','ro','tn','tl','ha','sr','el','ceb'):
 					s = '';
 					s += t.id.__str__() + splitter;
 					s += t.user.id.__str__() + splitter;
