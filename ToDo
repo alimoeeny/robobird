@@ -9,3 +9,12 @@ Tweet rank is
 
 tr = sigma(wr(w)) for all words in a tweet.
 
+
+
+Word Status values:
+0  -> the initial unprocessed state of a word, neutral
+-1 -> a word we don't even want to keep a record on in the MindState table, somthing absolutely uninformative
+1  -> a word with the least possible significance, or a word which is very common (so it has minimal information)
+ 
+
+
