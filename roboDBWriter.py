@@ -68,14 +68,14 @@ def CheckinWord(w):
 			print "PGsql checkinword failed!", exc_info()[0]
 
 
-def SetinStatus(w, tid):
-#	print w, hnscore, inTitle, tid
+def SetinStatusCountry(w, tid, country):
+	#print w, tid, country
 	if ((w<>"") & (w<>" ")):
 		try:
-			#print "SELECT setinstate(E'%(w)s', %(ts)d, %(tid)s )" % {"w":w.lower(), "ts":0, "tid":tid}
+			#print "SELECT setinstatecountry(E'%(w)s', %(ts)d, %(tid)s, '%(country)s' )" % {"w":w.lower(), "ts":0, "tid":tid, "country":country}
 			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
 			curg = dbg.cursor()
-			curg.execute("SELECT setinstate(E'%(w)s', %(ts)d, %(tid)s )" % {"w":w.lower(), "ts":0, "tid":tid});
+			curg.execute("SELECT setinstatecountry(E'%(w)s', %(ts)d, %(tid)s, '%(country)s' )" % {"w":w.lower(), "ts":0, "tid":tid, "country":country});
 			dbg.close();
 		except: 
 			print "PGsql setinstate failed", exc_info()[0]
@@ -88,11 +88,16 @@ if __name__ == "__main__":
 			pub_tw = tweepy.api.public_timeline();
 			print "Got %d tweets" % pub_tw.__len__()
 			for t in pub_tw:
+				if t.place:
+					p = t.place['country'];
+					print p
+				else:
+					p = ""
 				for w in word_tokenize(sanitize(t.text)):
 					try:
 						sw = w					
 						CheckinWord(sw)
-						SetinStatus(sw, t.id.__str__())
+						SetinStatusCountry(sw, t.id.__str__(), p)
 					except:
 						print "Failed", exc_info()[0], sw
 
