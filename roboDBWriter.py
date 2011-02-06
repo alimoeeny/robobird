@@ -8,7 +8,7 @@ import guess_language
 # exc_info is used for getting exceptions info
 from sys import exc_info
 
-import MySQLdb
+#import MySQLdb
 from nltk import pos_tag, word_tokenize
 
 servername = 'localhost'
@@ -88,6 +88,7 @@ if __name__ == "__main__":
 			pub_tw = tweepy.api.public_timeline();
 			print "Got %d tweets" % pub_tw.__len__()
 			for t in pub_tw:
+				time.sleep(0.3);
 				if t.place:
 					p = t.place['country'];
 					print p
