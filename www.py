@@ -85,12 +85,21 @@ def topTweetingCountries():
 	t += '<lo>'
 	ttc = TA_topTweetingCountries()
 	for c in ttc:
-		t += '<li>' + c.__str__().split(",")[0].split('(')[1].replace('"','') + ' - ' + c.__str__().split(",")[1].split(')')[0].replace('"','')
+		t += '<li>' + c.__str__().split(",")[0].split('(')[1].replace('"','') 
+		t += ' - ' + c.__str__().split(",")[1].split(')')[0].replace('"','')
+		t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
 	t += '</lo>'	
 	return t
 
 def whatArePeopleTweetingAbout():
-	t = ''	
+	t = ''
+	t += '<lo>'
+	ttc = TA_whatArePeopleTweetingAbout()
+	for c in ttc:
+		t += '<li>' + c.__str__().split(",")[0].split('(')[1].replace('"','') 
+		t += ' - ' + c.__str__().split(",")[1].split(')')[0].replace('"','')
+		#t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
+	t += '</lo>'	
 	return t
 
 
@@ -105,10 +114,28 @@ def TA_topTweetingCountries():
 			r.append(c);
 		dbg.close();
 	except:
-		print "PGsql checkinword failed!", exc_info()[0]
+		print "PGsql topTweetingCountries failed!", exc_info()[0]
 
 	return r;
 	
+def TA_whatArePeopleTweetingAbout():
+	r = [];
+	try:
+		dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+		curg = dbg.cursor()
+		#curg.execute("SELECT whatArePeopleTweetingAbout()");
+		curg.execute("SELECT whatsignificantthingsarepeopletweetingabout()");
+		for c in curg.fetchall():
+			r.append(c);
+		dbg.close();
+	except:
+		print "PGsql whatArePeopleTweetingAbout failed!", exc_info()[0]
+
+	return r;
+
+
+
+
 if __name__ == "__main__":
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(8888)
