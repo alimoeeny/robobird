@@ -47,7 +47,7 @@ if __name__ == "__main__":
 	c = 0;
 	for w in cur:
 		c += 1
-		time.sleep(1);
+		time.sleep(0.5);
 		try:
 			try:
 				tlang = guess_language.guessLanguage(w)
