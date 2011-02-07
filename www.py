@@ -39,17 +39,17 @@ def getPageHeader():
 	t += '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
 	t += '<head>'
 	t += '<meta name="author" content="Ali Moeeny" />'
-	t += '<meta name="description" content="Ali Moeeny, Who am I, What am I doing and more" />'
-	t += '<meta name="keywords" content="Ali Moeeny, Motahar, Motaharsadat, Hosseini, Brain, TED, Farsi, Translation, Neuroscience, Vision Science, Iran, Iranian, Irani, علی معینی, مطهر, نوروساینس, مغز, اعصاب ,تد, ترجمه , فارسی" />'
+	t += '<meta name="description" content="Ali Moeeny, robobird, twitter mind reader" />'
+	t += '<meta name="keywords" content="Ali Moeeny, twitter, robot, robobird, mind, whats on your mind, Brain" />'
 	t += '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-        t += '<meta name="google-site-verification" content="d6GHRUvsrXc4vtd7vdNHDBDvBzoim75jI6Z32-iWqpc" />'
-        t += '<title>Ali Moeeny - علی معینی</title>'
+        t += '<meta name="google-site-verification" content="" />'
+        t += '<title>RoboBird</title>'
 	t += ''
         t += '<link rel="stylesheet" href="alihome.css" type="text/css" />'
-        t += '<link rel="alternate" type="application/rss+xml" title="RSS Feed for ali.moeeny.com" href="http://alimoeeny.posterous.com/rss.xml" />'
-        t += '<link rel="alternate" type="application/rss+xml" title="RSS Feed for Ali\'s twitter timeline" href="http://twitter.com/statuses/user_timeline/14156637.rss" />'
+#        t += '<link rel="alternate" type="application/rss+xml" title="RSS Feed for ali.moeeny.com" href="http://alimoeeny.posterous.com/rss.xml" />'
+#        t += '<link rel="alternate" type="application/rss+xml" title="RSS Feed for Ali\'s twitter timeline" href="http://twitter.com/statuses/user_timeline/14156637.rss" />'
 	t += '<!-- link rel="shortcut icon" href="AliNastalighW.png" / -->'
-	t += '<link rel="apple-touch-icon" href="AliNastalighW.png" />'
+	t += '<link rel="apple-touch-icon" href="http://ali.moeeny.com/AliNastalighW.png" />'
 	t += '<style type="text/css">'
 	t += '/*'
 	t += 'h1 {color:#FF3333; font:150% Verdana,Helvetica; font-weight:bold;}'
@@ -154,9 +154,25 @@ def TA_whatArePeopleTweetingAbout():
 	return r;
 
 
+def loadConfig():
+	config = {}
+	f = open("server.txt")
+	s = f.readlines()
+	f.close()
+	config["environment"] = s[0].split("=")[1].replace("\r","").replace("\n","")
+	return config
+
+def main():
+	config = loadConfig();
+	print "We are in %(env)s !" % {"env":config["environment"]}
+	http_server = tornado.httpserver.HTTPServer(application)
+    	http_server.listen(8888)
+    	tornado.ioloop.IOLoop.instance().start()
 
 
 if __name__ == "__main__":
-    http_server = tornado.httpserver.HTTPServer(application)
-    http_server.listen(8888)
-    tornado.ioloop.IOLoop.instance().start()
+	try:
+		main()
+	except KeyboardInterrupt:
+		quit()
+
