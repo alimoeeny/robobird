@@ -5,13 +5,7 @@ import tornado.ioloop
 import tornado.web
 
 ### Move to TA
-servername = 'localhost'
-username = 'ali'
-userpass = 'testpassword' 
-databasename = 'robobird'
 import bpgsql
-pguser="postgres"
-pgpass="testpassword"
 
 # exc_info is used for getting exceptions info
 from sys import exc_info
@@ -91,7 +85,7 @@ def getMainPageBody():
 	t = ''
 	t += '<div id="wholepage" style="background-color:#F5EEFF;width:95%;margin-left:10px; margin-top:20px; padding:15px; border-radius:20px;">'
 	t += ""
-	t += "<h1>Tweeting Countries/ Where are people awake and tweeting!</h1>"
+	t += "<h1>Where are people awake and tweeting?!</h1>"
 	t += topTweetingCountries()
 	t += "<h1>What are people tweeting about</h1>"
 	t += whatArePeopleTweetingAbout()	
@@ -127,7 +121,7 @@ def whatArePeopleTweetingAbout():
 def TA_topTweetingCountries():
 	r = [];
 	try:
-		dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+		dbg = bpgsql.Connection(host=config["servername"], username=config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
 		curg = dbg.cursor()
 		curg.execute("SELECT topTweentingCountries()");
 		for c in curg.fetchall():
@@ -141,7 +135,7 @@ def TA_topTweetingCountries():
 def TA_whatArePeopleTweetingAbout():
 	r = [];
 	try:
-		dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+		dbg = bpgsql.Connection(host=config["servername"], username=config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
 		curg = dbg.cursor()
 		#curg.execute("SELECT whatArePeopleTweetingAbout()");
 		curg.execute("SELECT whatsignificantthingsarepeopletweetingabout()");
@@ -159,16 +153,36 @@ def loadConfig():
 	f = open("server.txt")
 	s = f.readlines()
 	f.close()
-	config["environment"] = s[0].split("=")[1].replace("\r","").replace("\n","")
+	for c in s:
+		try:
+			config[c.split("=")[0]] = c.split("=")[1].replace("\r","").replace("\n","")
+		except:
+			print "."
+#	config["environment"] = s[0].split("=")[1].replace("\r","").replace("\n","")
+#	config["servername"] = s[0].split("=")[1].replace("\r","").replace("\n","")
+#	config["databasename"] = s[0].split("=")[1].replace("\r","").replace("\n","")
+#	config["pguser"] = s[0].split("=")[1].replace("\r","").replace("\n","")
+#	config["pgpass"] = s[0].split("=")[1].replace("\r","").replace("\n","")
 	return config
 
 def main():
+	global config;
 	config = loadConfig();
+	#print config
 	print "We are in %(env)s !" % {"env":config["environment"]}
-	http_server = tornado.httpserver.HTTPServer(application)
-    	http_server.listen(8888)
-    	tornado.ioloop.IOLoop.instance().start()
-
+	print "Database server is at %(env)s !" % {"env":config["servername"]}
+	print "RoboBird db name is %(env)s !" % {"env":config["databasename"]}
+	if config["environment"] == 'development':
+		http_server = tornado.httpserver.HTTPServer(application)
+    		http_server.listen(8888)
+    		tornado.ioloop.IOLoop.instance().start()
+	elif config["environment"] == 'production':
+		http_server = tornado.httpserver.HTTPServer(application)
+    		http_server.listen(4321)
+    		tornado.ioloop.IOLoop.instance().start()
+	else:
+		print " W O H O ! ! What's going on here ! ! ! !"
+		
 
 if __name__ == "__main__":
 	try:

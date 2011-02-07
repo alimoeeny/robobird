@@ -3,7 +3,7 @@
 import tweepy
 import time
 from googlelangdetect import detect_language_v2
-import guess_language
+
 
 # exc_info is used for getting exceptions info
 from sys import exc_info
