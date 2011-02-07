@@ -13,6 +13,8 @@ import bpgsql
 pguser="postgres"
 pgpass="testpassword"
 
+# exc_info is used for getting exceptions info
+from sys import exc_info
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -64,7 +66,23 @@ def getPageHeader():
 	
 def getPageFooter():
 	t = ""
+	t += ''
+	t += '	<script type="text/javascript">'
+	t += ''
+	t += "  var _gaq = _gaq || [];"
+	t += "  _gaq.push(['_setAccount', 'UA-21229568-1']);"
+	t += "  _gaq.push(['_setDomainName', 'none']);"
+	t += "  _gaq.push(['_setAllowLinker', true]);"
+	t += "  _gaq.push(['_trackPageview']);"
 	t += ""
+	t += "  (function() {"
+	t += "    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;"
+	t += "    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';"
+	t += "    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);"
+	t += '  })();'
+	t += ''
+	t += '</script>'
+	t += ''	
 	t += "</body>"
 	t += "</html>"
 	return t
@@ -93,13 +111,15 @@ def topTweetingCountries():
 
 def whatArePeopleTweetingAbout():
 	t = ''
-	t += '<lo>'
+	t += '<table>'
 	ttc = TA_whatArePeopleTweetingAbout()
 	for c in ttc:
-		t += '<li>' + c.__str__().split(",")[0].split('(')[1].replace('"','') 
-		t += ' - ' + c.__str__().split(",")[1].split(')')[0].replace('"','')
+		t += '<tr>'
+		t += '<td>' + c.__str__().split(",")[0].split('(')[1].replace('"','') + '</td>'
+		t += '<td>' + c.__str__().split(",")[1].split(')')[0].replace('"','') + '</td>'
 		#t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
-	t += '</lo>'	
+		t += '</tr>'
+	t += '</table>'	
 	return t
 
 
