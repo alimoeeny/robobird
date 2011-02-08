@@ -17,8 +17,8 @@ from sys import exc_info
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        logLoggly("homepage")
         self.write(getMainPage())
+        logLoggly("homepage" + self.request.path.__str__() + self.request.arguments.__str__() + self.request.headers.__str__())
 
 class ErrorHandler(tornado.web.RequestHandler):
     """Generates an error response with status_code for all requests."""
@@ -27,7 +27,7 @@ class ErrorHandler(tornado.web.RequestHandler):
         self.set_status(status_code)
     
     def get_error_html(self, status_code, **kwargs):
-        logLoggly(status_code.__str__())
+        logLoggly("ERROR" + self.request.path.__str__() + self.request.arguments.__str__() + self.request.headers.__str__()+ "ERROR" + status_code.__str__())
         #self.require_setting("static_path")
         #if status_code in [404, 500, 503, 403]:
         #    filename = os.path.join(self.settings['static_path'], '%d.html' % status_code)

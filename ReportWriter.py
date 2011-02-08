@@ -74,7 +74,7 @@ def main():
 		except:
 			print "Can't DO IT", exc_info()[0]
 		print "Just Sleeping!"
-		time.sleep(600)
+		time.sleep(1200)
 		
 
 if __name__ == "__main__":
