@@ -55,28 +55,28 @@ def sanitize(w):
 	return r
 
 
-def CheckinWord(w):
+def CheckinWord(curs, w):
 	#print w
 	if ((w<>"") & (w<>" ")):
 		try:
-			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
-			curg = dbg.cursor()
+#			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+#			curg = dbg.cursor()
 			# THIS IS TO BE FIXED POSSIBLE SQL INJECTION PROBLEM HERE
-			curg.execute("SELECT checkinword(E'%s')" % w.lower());
-			dbg.close();
+			curs.execute("SELECT checkinword(E'%s')" % w.lower());
+#			dbg.close();
 		except:
 			print "PGsql checkinword failed!", exc_info()[0]
 
 
-def SetinStatusCountry(w, tid, country):
+def SetinStatusCountry(curs, w, tid, country):
 	#print w, tid, country
 	if ((w<>"") & (w<>" ")):
 		try:
 			#print "SELECT setinstatecountry(E'%(w)s', %(ts)d, %(tid)s, '%(country)s' )" % {"w":w.lower(), "ts":0, "tid":tid, "country":country}
-			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
-			curg = dbg.cursor()
-			curg.execute("SELECT setinstatecountry(E'%(w)s', %(ts)d, %(tid)s, '%(country)s' )" % {"w":w.lower(), "ts":0, "tid":tid, "country":country});
-			dbg.close();
+#			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+#			curg = dbg.cursor()
+			curs.execute("SELECT setinstatecountry(E'%(w)s', %(ts)d, %(tid)s, '%(country)s' )" % {"w":w.lower(), "ts":0, "tid":tid, "country":country});
+#			dbg.close();
 		except: 
 			print "PGsql setinstate failed", exc_info()[0]
 			
@@ -89,6 +89,8 @@ if __name__ == "__main__":
 			print "Got %d tweets" % pub_tw.__len__()
 			for t in pub_tw:
 				time.sleep(0.3);
+				dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+				curg = dbg.cursor()
 				if t.place:
 					p = t.place['country'];
 					print p
@@ -97,11 +99,11 @@ if __name__ == "__main__":
 				for w in word_tokenize(sanitize(t.text)):
 					try:
 						sw = w					
-						CheckinWord(sw)
-						SetinStatusCountry(sw, t.id.__str__(), p)
+						CheckinWord(curg, sw)
+						SetinStatusCountry(curg, sw, t.id.__str__(), p)
 					except:
 						print "Failed", exc_info()[0], sw
-
+				dbg.close()
 
 
 		finally:
