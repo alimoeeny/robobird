@@ -4,6 +4,10 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 
+#### nooded for loggly logging
+import urllib2 
+
+
 ### Move to TA
 import bpgsql
 
@@ -13,11 +17,45 @@ from sys import exc_info
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
+        logLoggly("homepage")
         self.write(getMainPage())
+
+class ErrorHandler(tornado.web.RequestHandler):
+    """Generates an error response with status_code for all requests."""
+    def __init__(self, application, request, status_code):
+        tornado.web.RequestHandler.__init__(self, application, request)
+        self.set_status(status_code)
+    
+    def get_error_html(self, status_code, **kwargs):
+        logLoggly(status_code.__str__())
+        #self.require_setting("static_path")
+        #if status_code in [404, 500, 503, 403]:
+        #    filename = os.path.join(self.settings['static_path'], '%d.html' % status_code)
+        #    if os.path.exists(filename):
+        #        f = open(filename, 'r')
+        #        data = f.read()
+        #        f.close()
+        #        return data
+        return "<html><title>%(code)d: %(message)s</title>" \
+                "<body class='bodyErrorPage'>%(code)d: %(message)s</body></html>" % {
+            "code": status_code,
+            "message": "ERROR HERE", #httplib.responses[status_code],
+        }
+    
+    def prepare(self):
+        raise tornado.web.HTTPError(self._status_code)
+
+  
+  
+  
+        
 
 application = tornado.web.Application([
     (r"/", MainHandler),
 ])
+
+## override the tornado.web.ErrorHandler with our default ErrorHandler
+tornado.web.ErrorHandler = ErrorHandler
 
 
 def getMainPage():
@@ -39,7 +77,7 @@ def getPageHeader():
         t += '<meta name="google-site-verification" content="" />'
         t += '<title>RoboBird</title>'
 	t += ''
-        t += '<link rel="stylesheet" href="alihome.css" type="text/css" />'
+        t += '<!-- link rel="stylesheet" href="alihome.css" type="text/css" / -->'
 #        t += '<link rel="alternate" type="application/rss+xml" title="RSS Feed for ali.moeeny.com" href="http://alimoeeny.posterous.com/rss.xml" />'
 #        t += '<link rel="alternate" type="application/rss+xml" title="RSS Feed for Ali\'s twitter timeline" href="http://twitter.com/statuses/user_timeline/14156637.rss" />'
 	t += '<!-- link rel="shortcut icon" href="AliNastalighW.png" / -->'
@@ -97,9 +135,10 @@ def topTweetingCountries():
 	t += '<lo>'
 	ttc = TA_topTweetingCountries()
 	for c in ttc:
-		t += '<li>' + c.__str__().split(",")[0].split('(')[1].replace('"','') 
-		t += ' - ' + c.__str__().split(",")[1].split(')')[0].replace('"','')
-		t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
+		if c.__len__()>0:
+		    t += '<li>' + c.__str__().split(",")[0].split('(')[1].replace('"','') 
+		    t += ' - ' + c.__str__().split(",")[1].split(')')[0].replace('"','')
+		    t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
 	t += '</lo>'	
 	return t
 
@@ -108,11 +147,12 @@ def whatArePeopleTweetingAbout():
 	t += '<table>'
 	ttc = TA_whatArePeopleTweetingAbout()
 	for c in ttc:
-		t += '<tr>'
-		t += '<td>' + c.__str__().split(",")[0].split('(')[1].replace('"','') + '</td>'
-		t += '<td>' + c.__str__().split(",")[1].split(')')[0].replace('"','') + '</td>'
-		#t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
-		t += '</tr>'
+		if c.__len__()>0:
+		    t += '<tr>'
+		    t += '<td>' + c.__str__().split(",")[0].split('(')[1].replace('"','') + '</td>'
+		    t += '<td>' + c.__str__().split(",")[1].split(')')[0].replace('"','') + '</td>'
+		    #t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
+		    t += '</tr>'
 	t += '</table>'	
 	return t
 
@@ -120,32 +160,34 @@ def whatArePeopleTweetingAbout():
 ###############################  T A 
 def TA_topTweetingCountries():
 	r = [];
-	try:
-		dbg = bpgsql.Connection(host=config["servername"], username=config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
-		curg = dbg.cursor()
-		curg.execute("SELECT topTweentingCountries()");
-		for c in curg.fetchall():
-			r.append(c);
-		dbg.close();
-	except:
-		print "PGsql topTweetingCountries failed!", exc_info()[0]
-
+	f = open("TA_topTweetingCountries.Cache","r");
+	s = f.read().split(";");
+	f.close()
+	for i in s:
+		r.append(i);
 	return r;
+
 	
 def TA_whatArePeopleTweetingAbout():
 	r = [];
-	try:
-		dbg = bpgsql.Connection(host=config["servername"], username=config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
-		curg = dbg.cursor()
-		#curg.execute("SELECT whatArePeopleTweetingAbout()");
-		curg.execute("SELECT whatsignificantthingsarepeopletweetingabout()");
-		for c in curg.fetchall():
-			r.append(c);
-		dbg.close();
-	except:
-		print "PGsql whatArePeopleTweetingAbout failed!", exc_info()[0]
-
+	f = open("TA_whatArePeopleTweetingAbout.Cache","r");
+	s = f.read().split(";");
+	f.close()
+	for i in s:
+		r.append(i);
 	return r;
+
+
+
+#############################
+
+def logLoggly(s):
+    try:
+        urllib2.urlopen("http://logs.loggly.com/inputs/d98aac89-9c09-41cf-b210-f8771e4eed64", data=s);   
+        return 0
+    except:
+        print "Loggly failed", exc_info()[0]
+        return 1
 
 
 def loadConfig():
