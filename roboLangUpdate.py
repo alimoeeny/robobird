@@ -40,7 +40,7 @@ def main():
 		c += 1
 		time.sleep(1);
 		try:
-			tlang = detect_language_v2(w, api_key='AIzaSyDAjurAKFjvi_pTgnzJ6HU0bMeHxhQMnrQ')
+			tlang = detect_language_v2(w, api_key=config["googletranslateapikey"])
 		except:
 			tlang = "x";				
 

@@ -4,7 +4,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 
-#### nooded for loggly logging
+#### needed for loggly logging
 import urllib2 
 
 
@@ -183,7 +183,7 @@ def TA_whatArePeopleTweetingAbout():
 
 def logLoggly(s):
     try:
-        urllib2.urlopen("http://logs.loggly.com/inputs/d98aac89-9c09-41cf-b210-f8771e4eed64", data=s);   
+        urllib2.urlopen(config["logglywwwurl"], data=s);   
         return 0
     except:
         print "Loggly failed", exc_info()[0]
@@ -200,11 +200,6 @@ def loadConfig():
 			config[c.split("=")[0]] = c.split("=")[1].replace("\r","").replace("\n","")
 		except:
 			print "."
-#	config["environment"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["servername"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["databasename"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["pguser"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["pgpass"] = s[0].split("=")[1].replace("\r","").replace("\n","")
 	return config
 
 def main():
