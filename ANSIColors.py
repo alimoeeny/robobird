@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+aReset  = chr(27) + '[0m';
+aBold   = chr(27) + '[1m';
+aItalic = chr(27) + '[3m';
+aUnderL = chr(27) + '[4m';
+aReverse= chr(27) + '[7m';
+aStrikeT= chr(27) + '[9m';
+aBoldOff= chr(27) + '[22m';
+aUnderOf= chr(27) + '[24m';
+aInvOff = chr(27) + '[27m';
+aStrOff = chr(27) + '[29m';
+aBalck  = chr(27) + '[30m';
+aRed    = chr(27) + '[31m';
+aGreen  = chr(27) + '[32m';
+aYellow = chr(27) + '[33m';
+aBlue   = chr(27) + '[34m';
+aMagenta= chr(27) + '[35m';
+aCyan   = chr(27) + '[36m';
+aWhite  = chr(27) + '[37m';
+aDefault= chr(27) + '[39m';
+aBGBlack= chr(27) + '[40m';
+aBGRed  = chr(27) + '[41m';
+aBGGreen= chr(27) + '[42m';
+aBGYello= chr(27) + '[43m';
+aBGBlue = chr(27) + '[44m';
+aBGMagen= chr(27) + '[45m';
+aBGCyan = chr(27) + '[46m';
+aBGWhite= chr(27) + '[47m';
+aBGBlack= chr(27) + '[49m';
