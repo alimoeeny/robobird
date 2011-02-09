@@ -22,7 +22,7 @@ def TA_topTweetingCountriesCache():
 	f = open("TA_topTweetingCountries.Cache","w");
 	for rs in r:
 		for i in rs:
-			f.write(i);
+			f.write(i.encode('utf-8'));
 		f.write(";");
 	f.close()
 	
@@ -41,7 +41,7 @@ def TA_whatArePeopleTweetingAboutCache():
 	f = open("TA_whatArePeopleTweetingAbout.Cache","w");
 	for rs in r:
 		for i in rs:
-			f.write(i);
+			f.write(i.encode('utf-8'));
 		f.write(";");
 	f.close()
 	
