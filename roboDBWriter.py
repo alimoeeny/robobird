@@ -106,6 +106,8 @@ if __name__ == "__main__":
 				dbg.close()
 
 
+		except:
+			print "Somthing went wrong here", exc_info()[0]
 		finally:
 			print time.time()
 		time.sleep(30);
