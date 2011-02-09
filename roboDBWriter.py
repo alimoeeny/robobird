@@ -1,4 +1,3 @@
-# LOAD DATA LOCAL INFILE '~/pubT.txt' INTO TABLE Drops COLUMNS TERMINATED BY '\t' LINES TERMINATED BY 'T#S%\r\n' (TID, UID, AuthorId, CreatedAt, tlang, SourceURL, tplace, Body);
 
 import tweepy
 import time
@@ -11,16 +10,9 @@ from sys import exc_info
 #import MySQLdb
 from nltk import pos_tag, word_tokenize
 
-servername = 'localhost'
-username = 'ali'
-userpass = 'testpassword' 
-databasename = 'robobird'
-
 ###################
 #import psycopg2
 import bpgsql
-pguser="postgres"
-pgpass="testpassword"
 
 
 def sanitize(w):
@@ -59,11 +51,7 @@ def CheckinWord(curs, w):
 	#print w
 	if ((w<>"") & (w<>" ")):
 		try:
-#			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
-#			curg = dbg.cursor()
-			# THIS IS TO BE FIXED POSSIBLE SQL INJECTION PROBLEM HERE
 			curs.execute("SELECT checkinword(E'%s')" % w.lower());
-#			dbg.close();
 		except:
 			print "PGsql checkinword failed!", exc_info()[0]
 
@@ -72,24 +60,34 @@ def SetinStatusCountry(curs, w, tid, country):
 	#print w, tid, country
 	if ((w<>"") & (w<>" ")):
 		try:
-			#print "SELECT setinstatecountry(E'%(w)s', %(ts)d, %(tid)s, '%(country)s' )" % {"w":w.lower(), "ts":0, "tid":tid, "country":country}
-#			dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
-#			curg = dbg.cursor()
 			curs.execute("SELECT setinstatecountry(E'%(w)s', %(ts)d, %(tid)s, '%(country)s' )" % {"w":w.lower(), "ts":0, "tid":tid, "country":country});
-#			dbg.close();
 		except: 
 			print "PGsql setinstate failed", exc_info()[0]
 			
 
 
+def loadConfig():
+	config = {}
+	f = open("server.txt")
+	s = f.readlines()
+	f.close()
+	for c in s:
+		try:
+			config[c.split("=")[0]] = c.split("=")[1].replace("\r","").replace("\n","")
+		except:
+			print "."
+	return config
+
+
 if __name__ == "__main__":
-	while (True):
+    config = loadConfig()
+    while (True):
 		try:
 			pub_tw = tweepy.api.public_timeline();
 			print "Got %d tweets" % pub_tw.__len__()
 			for t in pub_tw:
 				time.sleep(0.3);
-				dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
+				dbg = bpgsql.Connection(host=config["servername"], username= config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
 				curg = dbg.cursor()
 				if t.place:
 					p = t.place['country'];
