@@ -17,11 +17,6 @@ def loadConfig():
 			config[c.split("=")[0]] = c.split("=")[1].replace("\r","").replace("\n","")
 		except:
 			print "."
-#	config["environment"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["servername"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["databasename"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["pguser"] = s[0].split("=")[1].replace("\r","").replace("\n","")
-#	config["pgpass"] = s[0].split("=")[1].replace("\r","").replace("\n","")
 	return config
 
 	
@@ -41,7 +36,6 @@ def main():
 	cur.execute('SELECT "Word" FROM "Words" WHERE "Lang" = \'\'');
 	c = 0;
 	dbg =  bpgsql.Connection(host=config["servername"], username= config["pguser"], password=config["pgpass"], dbname=config["databasename"])
-	#dbg = bpgsql.Connection(host=servername, username= pguser, password=pgpass, dbname=databasename)			
 	for w in cur:
 		c += 1
 		time.sleep(1);

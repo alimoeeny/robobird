@@ -7,11 +7,8 @@ from googlelangdetect import detect_language_v2
 # exc_info is used for getting exceptions info
 from sys import exc_info
 
-#import MySQLdb
 from nltk import pos_tag, word_tokenize
 
-###################
-#import psycopg2
 import bpgsql
 
 
