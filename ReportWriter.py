@@ -7,18 +7,35 @@ import time
 # exc_info is used for getting exceptions info
 from sys import exc_info
 
+def TA_tweetCountCache():
+	r = [];
+	try:
+		dbg = bpgsql.Connection(host=config["servername"], username=config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
+		curg = dbg.cursor()
+		curg.execute("SELECT tweetcount()");
+		for c in curg.fetchall():
+			r.append(c);
+		dbg.close();
+	except:
+		print "PGsql tweetcount failed!", exc_info()[0]
+	f = open("TA_tweetcount.Cache","w");
+	for rs in r:
+		for i in rs:
+			f.write(i.__str__().encode('utf-8'));
+		f.write(";");
+	f.close()
 
 def TA_topTweetingCountriesCache():
 	r = [];
 	try:
 		dbg = bpgsql.Connection(host=config["servername"], username=config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
 		curg = dbg.cursor()
-		curg.execute("SELECT topTweentingCountries()");
+		curg.execute("SELECT toptweetingcountries2()");
 		for c in curg.fetchall():
 			r.append(c);
 		dbg.close();
 	except:
-		print "PGsql topTweetingCountries failed!", exc_info()[0]
+		print "PGsql topTweetingCountriesv2 failed!", exc_info()[0]
 	f = open("TA_topTweetingCountries.Cache","w");
 	for rs in r:
 		for i in rs:
@@ -32,7 +49,7 @@ def TA_whatArePeopleTweetingAboutCache():
 		dbg = bpgsql.Connection(host=config["servername"], username=config["pguser"], password=config["pgpass"], dbname=config["databasename"])			
 		curg = dbg.cursor()
 		#curg.execute("SELECT whatArePeopleTweetingAbout()");
-		curg.execute("SELECT whatsignificantthingsarepeopletweetingabout()");
+		curg.execute("SELECT whatsignificantthingsarepeopletweetingabout2()");
 		for c in curg.fetchall():
 			r.append(c);
 		dbg.close();
@@ -69,12 +86,17 @@ def main():
 	print "RoboBird db name is %(env)s !" % {"env":config["databasename"]}
 	while 1:
 		try:
+			print "Starting to regenerate the reports"
+			print "running TA_tweetCountCache()"
+			TA_tweetCountCache()
+			print "running TA_topTweetingCountriesCache()"
 			TA_topTweetingCountriesCache()
+			print "running TA_whatArePeopleTweetingAboutCache()"
 			TA_whatArePeopleTweetingAboutCache()
 		except:
 			print "Can't DO IT", exc_info()[0]
 		print "Just Sleeping!"
-		time.sleep(1200)
+		time.sleep(3600)
 		
 
 if __name__ == "__main__":

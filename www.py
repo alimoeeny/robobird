@@ -83,13 +83,15 @@ def getPageHeader():
 	t += '<!-- link rel="shortcut icon" href="AliNastalighW.png" / -->'
 	t += '<link rel="apple-touch-icon" href="http://ali.moeeny.com/AliNastalighW.png" />'
 	t += '<style type="text/css">'
-	t += '/*'
 	t += 'h1 {color:#FF3333; font:150% Verdana,Helvetica; font-weight:bold;}'
 	t += 'h2 {color:#AA3333; font:100% Verdana,Helvetica; font-weight:bold;}'
 	t += 'p {color:#121314; font:85% Monaco,Courier New,DejaVu Sans Mono,Bitstream Vera Sans Mono,monospace;*font-size:100%;}'
 	t += 'p.farsi {font:Tahoma, Koodak; color:#131618;}'
 	t += 'li {color:#232399; font:85% Monaco,Courier New,DejaVu Sans Mono,Bitstream Vera Sans Mono,monospace;*font-size:100%;}'
-	t += '*/'
+	t += 'span.rednumber {color:#FF0000;}'
+	t += '.bgcolordark {background-color:#d7c9d5; margin-left:20px;}'
+	t += '.topcountries {border-radius:15px; border-color:#ae1a99; background-color:#e3e6ff; border:2px; margin:20px;}'
+	t += '.tableitems {font-weight:bold;}'
 	t += '</style>'
 	t += ''
 	t += '</head>'
@@ -123,6 +125,9 @@ def getMainPageBody():
 	t = ''
 	t += '<div id="wholepage" style="background-color:#F5EEFF;width:95%;margin-left:10px; margin-top:20px; padding:15px; border-radius:20px;">'
 	t += ""
+	t += "<p>Watching the Twitter public timeline since 5/2/2011. So far indexed <span class='rednumber'>%(tc)s </span>tweets. </p>" % {"tc":TA_tweetCount()[0]}
+	t += "<p>Please note that since this information is not a random sample of what 'actually' peaple are tweeting it is biased and not reliable for and practical purposes</br>"
+	t += "this information is provided here as a proof of concept. Without any promise of usefulness.</p>"
 	t += "<h1>Where are people awake and tweeting?!</h1>"
 	t += topTweetingCountries()
 	t += "<h1>What are people tweeting about</h1>"
@@ -131,15 +136,18 @@ def getMainPageBody():
 	return t
 
 def topTweetingCountries():
-	t = ''
-	t += '<lo>'
+	t = '<table class="topcountries">'
+	t += '<tr><td class="tableitems">Country</td><td class="tableitems">Tweets</td><td class="tableitems">People per Tweet!</td><td class="tableitems">Share</td></tr>'
 	ttc = TA_topTweetingCountries()
 	for c in ttc:
 		if c.__len__()>0:
-		    t += '<li>' + c.__str__().split(",")[0].split('(')[1].replace('"','') 
-		    t += ' - ' + c.__str__().split(",")[1].split(')')[0].replace('"','')
-		    t += ' [ ' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + ' % ]' 
-	t += '</lo>'	
+		    t += '<tr>' 
+		    t += '<td>' + c.__str__().split(",")[0].split('(')[1].replace('"','') + '</td>' 
+		    t += '<td class="bgcolordark" align="right">' + c.__str__().split(",")[1].split(')')[0].replace('"','') + '</td>' 
+		    t += '<td align="right">' + round(float(c.__str__().split(",")[3].split(')')[0].replace('"',''))).__str__() + '</td>' 
+		    t += '<td class="bgcolordark">%' + round(float(c.__str__().split(",")[2].split(')')[0].replace('"','')),3).__str__() + '</td>' 
+	t += '</tr>'	
+	t += '</table>'	
 	return t
 
 def whatArePeopleTweetingAbout():
@@ -171,6 +179,15 @@ def TA_topTweetingCountries():
 def TA_whatArePeopleTweetingAbout():
 	r = [];
 	f = open("TA_whatArePeopleTweetingAbout.Cache","r");
+	s = f.read().split(";");
+	f.close()
+	for i in s:
+		r.append(i);
+	return r;
+
+def TA_tweetCount():
+	r = [];
+	f = open("TA_tweetcount.Cache","r");
 	s = f.read().split(";");
 	f.close()
 	for i in s:
